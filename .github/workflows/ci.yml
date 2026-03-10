@@ -20,9 +20,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install -e .
 
       - name: Run tests
         run: |
+          export PYTHONPATH=$PYTHONPATH:.
           pytest
 
       - name: Run security scans

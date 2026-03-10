@@ -1,8 +1,7 @@
 name: CI/CD Pipeline
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -11,29 +10,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           pip install -e .
           pip install pytest
 
-      # Test code
-      - name: Run tests
+      - name: Test code
         env:
           PYTHONPATH: $PYTHONPATH:. 
         run: |
           python3 -m pytest
 
-      # Docker build and push (if applicable)
-      - name: Build and push Docker image
-        if: github.event.action == 'push'
-        uses: docker/build-push-action@v2
+      # Docker steps (if applicable)
+      - name: Login to Docker Hub (optional)
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push image (optional)
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true

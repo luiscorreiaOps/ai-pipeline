@@ -56,6 +56,7 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
     4. If Containerization is 'Docker':
        - Include steps for 'docker build' and 'docker push' using secrets.DOCKER_USERNAME.
     5. Ensure all steps have a 'name' and a 'run' (or 'uses') field. No empty steps.
+    6. MANDATORY: Never run just 'pytest'. Always use 'python3 -m pytest' to avoid PATH issues.
     
     TEMPLATE STRUCTURE:
     name: CI/CD Pipeline

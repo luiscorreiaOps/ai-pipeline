@@ -1,13 +1,22 @@
-name: CI/CD Pipeline
-on: [push]
+name: Python CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Setup Python 3.x
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
@@ -17,31 +26,18 @@ jobs:
           pip install -e .
           pip install pytest
 
-      - name: Run tests
-        run: |
-          python3 -m pytest
-
-      - name: Deploy (placeholder)
-        if: ${{ always() }}
-        run: |
-          # Add deploy steps here, e.g., using actions/deploy@v1 or other deployment tools
-
-      - name: Docker login (optional)
-        if: ${{ secrets.DOCKER_USERNAME != '' }}
+      - name: Login to Docker Hub (if credentials exist)
+        if: ${{ env.DOCKER_USERNAME != '' }}
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
-      - name: Build and push image (optional)
-        if: ${{ secrets.DOCKER_USERNAME != '' }}
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_IMAGE_NAME }}:latest
-
-      - name: Docker logout (optional)
-        if: ${{ secrets.DOCKER_USERNAME != '' }}
+      - name: Test using Pytest
         run: |
-          docker logout ${{ secrets.DOCKER_USERNAME }}
+          export PYTHONPATH=$PYTHONPATH:. && python3 -m pytest
+
+      - name: Test failed? Re-run tests with debug mode
+        if: ${{ failure() }}
+        run: |
+          export PYTHONPATH=$PYTHONPATH:. && python3 -m pytest --pdb

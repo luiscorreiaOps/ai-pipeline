@@ -44,7 +44,8 @@ Para utilizar modelos locais via Ollama:
 1. Garanta que o Ollama está rodando (`ollama serve`).
 2. Defina o modelo desejado no ambiente:
    ```bash
-   export OLLAMA_MODEL="llama3.1:8b"  # Qualquer modelo é compativel
+   export OLLAMA_MODEL="llama3.1:8b"
+   # Qualquer modelo é compativel
    ```
 ![alt text](imgs/ollama1.png)
 3. Selecione a opção `OLLAMA_MODEL` e a ferramenta enviará as requisições para  `http://localhost:11434/v1`.

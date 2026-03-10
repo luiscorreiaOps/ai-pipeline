@@ -1,4 +1,5 @@
-name: CI/CD Pipeline
+yml
+name: Python CI/CD Pipeline
 
 on:
   push:
@@ -10,31 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
           pip install -e .
 
       - name: Run tests
-        run: |
-          export PYTHONPATH=$PYTHONPATH:.
-          pytest
+        env:
+          PYTHONPATH: $PYTHONPATH:. 
+        run: pytest
 
-      - name: Run security scans
-        run: |
-          # Add security scan commands here
-
-      - name: Docker build and push
-        run: |
-          # Add Docker build and push commands here
-
+      # Placeholder for deploy step
       - name: Deploy
-        run: |
-          # Add deploy commands here
+        run: echo "Deploy step not implemented"

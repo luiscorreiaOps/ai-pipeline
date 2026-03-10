@@ -37,6 +37,18 @@ ai-pipeline-tool init
 ```
 ![alt text](imgs/init1.png)
 
+### Uso com Ollama (Local)
+
+Para utilizar modelos locais via Ollama:
+
+1. Garanta que o Ollama está rodando (`ollama serve`).
+2. Defina o modelo desejado no ambiente:
+   ```bash
+   export OLLAMA_MODEL="llama3.1:8b"
+   ```
+3. Execute `ai-pipeline-tool init` e selecione a opção `OLLAMA_MODEL`.
+4. A ferramenta enviará as requisições para `http://localhost:11434/v1`.
+
 ### Analisar Projeto
 Para verificar o que a ferramenta detecta sem gerar arquivos:
 

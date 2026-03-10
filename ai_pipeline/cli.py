@@ -12,9 +12,19 @@ from .generator import generate_pipeline
 from .config import config
 from .providers import PROVIDERS_CONFIG, KNOWN_KEYS
 from . import __version__
+import ai_pipeline.providers as providers_mod
 
 app = typer.Typer()
 console = Console()
+
+@app.command()
+def debug():
+    """Prints debug information about providers and environment."""
+    console.print(f"CLI Version: {__version__}")
+    console.print(f"Providers File: {providers_mod.__file__}")
+    console.print(f"Known Keys in Code: {KNOWN_KEYS}")
+    found = config.scan_environment()
+    console.print(f"Keys found in Environment: {list(found.keys())}")
 
 @app.command()
 def version():
@@ -24,6 +34,9 @@ def version():
 def select_from_found(found_dict: dict, message: str = "Choose an AI provider key:"):
     """Exibe uma lista numerada e permite seleção por número ou nome."""
     keys = list(found_dict.keys())
+
+    if not keys:
+        return None, None
 
     table = Table(title=message, show_header=True, header_style="bold magenta")
     table.add_column("No.", style="dim", width=4)
@@ -51,7 +64,6 @@ def select_from_found(found_dict: dict, message: str = "Choose an AI provider ke
 
 def get_best_provider():
     """Identifies which AI keys are in the environment and chooses one."""
-    # Check if we have saved preferences in .env
     if config.ai_api_key and config.ai_provider_key:
         return config.ai_provider_key, config.ai_api_key
 
@@ -64,7 +76,6 @@ def get_best_provider():
         key_name = list(found.keys())[0]
         return key_name, found[key_name]
     else:
-        # seleção numerada
         return select_from_found(found, "Multiple AI keys found in environment")
 
 @app.command()
@@ -136,7 +147,7 @@ def analyze():
 @app.command()
 def init():
     """Configures AI API key."""
-    # Scan environment to help the user
+    # Scan environment
     found = config.scan_environment()
 
     key_name = ""

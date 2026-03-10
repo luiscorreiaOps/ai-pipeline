@@ -6,7 +6,9 @@ from .providers import KNOWN_KEYS
 load_dotenv()
 
 class Config(BaseModel):
+    # API key value
     ai_api_key: str = Field(default_factory=lambda: os.getenv("AI_API_KEY", ""))
+
     ai_provider_key: str = Field(default_factory=lambda: os.getenv("AI_PROVIDER_KEY", ""))
 
     def is_valid(self) -> bool:

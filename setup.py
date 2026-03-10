@@ -3,7 +3,7 @@ import os
 
 setup(
     name="ai-pipeline-tool",
-    version="0.1.3",
+    version="0.1.5",
     packages=find_packages(),
     install_requires=[
         "typer",
@@ -18,9 +18,9 @@ setup(
             "ai-pipeline-tool=ai_pipeline.cli:app",
         ],
     },
-    author="Generic Dev",
-    author_email="dev@example.com",
-    description="A generic AI-powered CLI tool to automatically generate CI/CD pipelines.",
+    author="Correia",
+    author_email="correia.ops@gmail.com",
+    description="AI-powered CLI tool to automatically generate CI/CD pipelines.",
     long_description=open("README.md").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
     classifiers=[

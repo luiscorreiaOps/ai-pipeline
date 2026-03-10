@@ -75,9 +75,17 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
         content = result['choices'][0]['message']['content']
 
         if "```yaml" in content:
-            return content.split("```yaml")[1].split("```")[0].strip()
+            content = content.split("```yaml")[1].split("```")[0].strip()
+        elif "```yml" in content:
+            content = content.split("```yml")[1].split("```")[0].strip()
         elif "```" in content:
-            return content.split("```")[1].strip()
+            content = content.split("```")[1].strip()
+
+        # Remove prefixo 'yml' ou 'yaml' se ele ainda existir (algumas IAs bugam)
+        lines = content.splitlines()
+        if lines and lines[0].strip().lower() in ["yml", "yaml"]:
+            content = "\n".join(lines[1:]).strip()
+
         return content.strip()
 
     except Exception as e:

@@ -1,5 +1,4 @@
-name: Python CI/CD Pipeline
-
+name: CI/CD Pipeline
 on:
   push:
     branches:
@@ -12,20 +11,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # Install dependencies
       - name: Install dependencies
         run: |
           pip install -e .
+          pip install pytest
 
+      # Test code
       - name: Run tests
         env:
-          PYTHONPATH: $PYTHONPATH:.:/usr/local/lib/python3.x/site-packages
+          PYTHONPATH: $PYTHONPATH:. 
         run: |
-          pytest
+          python3 -m pytest
 
-      - name: Deploy (placeholder)
-        run: echo "Deploy step not implemented"
+      # Docker build and push (if applicable)
+      - name: Build and push Docker image
+        if: github.event.action == 'push'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-repo:${GITHUB_SHA}

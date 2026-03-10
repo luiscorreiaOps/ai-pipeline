@@ -36,26 +36,36 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
 
 
     prompt = f"""
-    Generate a complete GitHub Actions CI/CD pipeline YAML file for a project with the following stack:
-    - Language: {stack.language} (Version: {stack.language_version or 'Latest'})
+    Generate a complete GitHub Actions CI/CD pipeline YAML file.
+    
+    PROJECT STACK:
+    - Language: {stack.language} (Version: {stack.language_version or '3.x'})
     - Test Framework: {stack.tests}
     - Containerization: {'Docker' if stack.container else 'None'}
-    - Infrastructure: {stack.infrastructure}
-    - Cloud Provider: {stack.cloud}
-    - Custom Scripts: {stack.scripts}
+    - Infrastructure: {stack.infrastructure or 'None'}
+    - Cloud Provider: {stack.cloud or 'None'}
     - Security Tools: {', '.join(stack.security_tools) if stack.security_tools else 'None'}
 
-    CRITICAL INSTRUCTIONS:
-    1. If Containerization is 'Docker', include the Docker build and push steps DIRECTLY without 'if' conditions.
-    2. LANGUAGE CONFIGURATION:
-       - For Python: Use `actions/setup-python@v4` with `python-version: '3.x'` (or the specific detected version). NEVER use 'latest'.
-       - For Node.js: Use `actions/setup-node@v3`.
-    3. DEPENDENCIES & TESTS:
-       - For Python: The install step MUST include `pip install -e .` (in addition to requirements).
-       - For Python: The test step MUST run `export PYTHONPATH=$PYTHONPATH:. && pytest`.
-    4. GENERAL:
-       - Include: Checkout, Install dependencies, Run tests, Run Security scans (if present), Docker Build/Push (if present), and a placeholder Deploy step.
-       - Return ONLY the YAML code within a code block. Do not add explanations.
+    STRICT RULES (MUST FOLLOW):
+    1. Output MUST be ONLY valid YAML code.
+    2. DO NOT include language markers like 'yml', 'yaml' or 'bash' inside the code block.
+    3. If Language is Python:
+       - Use actions/setup-python@v4 with python-version: '3.x'
+       - Install step MUST run: pip install -e . && pip install pytest
+       - Test step MUST run: export PYTHONPATH=$PYTHONPATH:. && python3 -m pytest
+    4. If Containerization is 'Docker':
+       - Include steps for 'docker build' and 'docker push' using secrets.DOCKER_USERNAME.
+    5. Ensure all steps have a 'name' and a 'run' (or 'uses') field. No empty steps.
+    
+    TEMPLATE STRUCTURE:
+    name: CI/CD Pipeline
+    on: [push]
+    jobs:
+      build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          ... (add language setup, install, test, and docker steps here)
     """
 
     data = {

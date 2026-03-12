@@ -1,6 +1,7 @@
 import requests
 import json
 import re
+import os
 from .config import config
 from .detector import Stack
 from .providers import PROVIDERS_CONFIG
@@ -9,7 +10,7 @@ from .utils import get_logger
 logger = get_logger("generator")
 
 def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> str:
-    """Generates a CI/CD pipeline using a hybrid approach (Template + AI)."""
+    """Generates a CI/CD pipeline using a robust hybrid approach."""
 
     provider_info = PROVIDERS_CONFIG.get(provider_key, list(PROVIDERS_CONFIG.values())[0])
     url = provider_info["url"].rstrip("/") + "/chat/completions"
@@ -25,7 +26,7 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
     setup_version_key = "python-version" if "python" in lang else "dotnet-version" if "c#" in lang or "net" in lang else "node-version"
     setup_version_val = stack.language_version or ("3.11" if "python" in lang else "9.0" if "c#" in lang else "20")
 
-    # Get ai cmd
+    # Get commands from AI
     prompt = f"Act as a CI console. Provide ONLY the shell commands for a {stack.language} project to build and test. DO NOT EXPLAIN. NO MARKDOWN. NO YAML."
     data = {"model": model, "messages": [{"role": "user", "content": prompt}], "temperature": 0.0}
 
@@ -45,23 +46,27 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
     except Exception:
         pass
 
+    #  path handling src layout
+    test_path = "src/tests" if os.path.exists("src/tests") else "tests"
+    python_path_fix = "export PYTHONPATH=$PYTHONPATH:$(pwd)/src\n          " if "python" in lang else ""
+
     yaml = f"name: CI Pipeline\n"
     yaml += "on:\n  push:\n    branches: [ main, develop ]\n"
-    yaml += "env:\n  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n"
+    yaml += "env:\n  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}\n  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}\n"
     yaml += "jobs:\n"
 
     yaml += "  Security:\n    runs-on: ubuntu-latest\n    steps:\n"
     yaml += "      - uses: actions/checkout@v4\n"
     yaml += "      - uses: gitleaks/gitleaks-action@v2\n"
-    yaml += f"      - uses: snyk/actions/{snyk_action}@master\n"
+    yaml += f"      - name: Snyk Scan\n        if: env.SNYK_TOKEN != ''\n        uses: snyk/actions/{snyk_action}@master\n"
     yaml += "        env:\n          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}\n\n"
 
     yaml += "  Build_and_Test:\n    runs-on: ubuntu-latest\n    steps:\n"
     yaml += "      - uses: actions/checkout@v4\n"
     yaml += f"      - uses: {setup_action}\n        with:\n          {setup_version_key}: '{setup_version_val}'\n"
     yaml += "      - name: Install and Test\n        run: |\n"
-    yaml += indented_commands + "\n"
-    yaml += "      - uses: sonarsource/sonarcloud-github-action@master\n"
+    yaml += f"          {python_path_fix}" + indented_commands.replace("tests", test_path) + "\n"
+    yaml += "      - name: SonarCloud\n        if: env.SONAR_TOKEN != ''\n        uses: sonarsource/sonarcloud-github-action@master\n"
     yaml += "        env:\n          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}\n\n"
 
     if stack.has_api:
@@ -76,7 +81,6 @@ def generate_pipeline(stack: Stack, api_key: str, provider_key: str = None) -> s
 
     yaml += "  Reporting:\n    runs-on: ubuntu-latest\n    needs: Build_and_Test\n    steps:\n"
     yaml += "      - name: Summary\n"
-    #avoid ':' issues in YAML
     yaml += "        run: |\n"
     yaml += f"          echo '## Project Version: {stack.project_version}' >> $GITHUB_STEP_SUMMARY\n"
 

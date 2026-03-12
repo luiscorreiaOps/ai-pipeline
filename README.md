@@ -35,7 +35,7 @@ A ferramenta busca automaticamente e para configurar uma chave manualmente ou de
 ```bash
 ai-pipeline-tool init
 ```
-![alt text](imgs/init1.png)
+![alt text](src/imgs/init1.png)
 
 ### Suporte a Ollama (Local)
 
@@ -47,7 +47,7 @@ Para utilizar modelos locais via Ollama:
    export OLLAMA_MODEL="llama3.1:8b"
    # Qualquer modelo é compativel
    ```
-![alt text](imgs/ollama1.png)
+![alt text](src/imgs/ollama1.png)
 3. Selecione a opção `OLLAMA_MODEL` e a ferramenta enviará as requisições para  `http://localhost:11434/v1`.
 
 ### Analisar Projeto
@@ -56,7 +56,7 @@ Para verificar o que a ferramenta detecta sem gerar arquivos:
 ```bash
 ai-pipeline-tool analyze
 ```
-![alt text](imgs/analise3.png)
+![alt text](src/imgs/analise3.png)
 
 ### Gerar Workflow de CI/CD
 Para executar o fluxo completo de detecção e geração do arquivo de pipeline:
@@ -64,7 +64,7 @@ Para executar o fluxo completo de detecção e geração do arquivo de pipeline:
 ```bash
 ai-pipeline-tool generate
 ```
-![alt text](imgs/generate5.png)
+![alt text](src/imgs/generate5.png)
 
 
 

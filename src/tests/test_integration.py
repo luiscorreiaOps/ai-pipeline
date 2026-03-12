@@ -11,7 +11,7 @@ runner = CliRunner()
 @patch('ai_pipeline.cli.scan_repo')
 @patch('ai_pipeline.cli.detect_stack')
 def test_full_generate_flow(mock_detect, mock_scan, mock_provider, mock_post):
-    # Configura os Mocks
+    # Mocks
     mock_scan.return_value = ["package.json", "Dockerfile"]
     mock_detect.return_value = Stack(
         language="Node.js",

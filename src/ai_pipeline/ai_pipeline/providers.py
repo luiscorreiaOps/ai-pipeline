@@ -43,7 +43,6 @@ PROVIDERS_CONFIG = {
     }
 }
 
-# List environment
 KNOWN_KEYS = [
     "OPENAI_API_KEY",
     "ANTHROPIC_API_KEY",

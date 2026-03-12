@@ -3,8 +3,9 @@ import os
 
 setup(
     name="ai-pipeline-tool",
-    version="0.1.7",
-    packages=find_packages(),
+    version="0.2.0",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     install_requires=[
         "typer",
         "pydantic",

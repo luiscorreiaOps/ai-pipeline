@@ -1,9 +1,6 @@
 import os
 from pydantic import BaseModel, Field
-from dotenv import load_dotenv
 from .providers import KNOWN_KEYS
-
-load_dotenv()
 
 class Config(BaseModel):
     # API key value

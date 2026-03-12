@@ -165,13 +165,11 @@ def init():
         key_name = Prompt.ask("Enter the AI Key Name (e.g., your environment variable name)")
         key_val = Prompt.ask(f"Enter the value for {key_name}", password=True)
 
-    # Sav local .env
-    with open(".env", "a") as f:
-        f.write(f"\nAI_PROVIDER_KEY={key_name}\n")
-        f.write(f"AI_API_KEY={key_val}\n")
-        f.write(f"{key_name}={key_val}\n")
-
-    console.print(f"[green]Key {key_name} saved successfully as default![/green]")
+    console.print(f"\n[bold green]Configuration Selected:[/bold green]")
+    console.print(f"To use this key as default, run the following command in your terminal:")
+    console.print(f"\n[cyan]export AI_PROVIDER_KEY={key_name}[/cyan]")
+    console.print(f"[cyan]export AI_API_KEY={key_val}[/cyan]")
+    console.print(f"\n[yellow]Note: No .env file was created. You must set these variables in your environment.[/yellow]")
 
 if __name__ == "__main__":
     app()
